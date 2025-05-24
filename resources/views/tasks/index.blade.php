@@ -91,6 +91,53 @@
             width: 100%;
             cursor: pointer;
         }
+
+        .task-list-container {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 2px;
+            padding-top: 1rem;
+            margin-top: 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background-color: #fafafa;
+            scrollbar-width: thin;
+        }
+
+        .task-list-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .task-list-container::-webkit-scrollbar-thumb {
+            background-color: #bbb;
+            border-radius: 6px;
+        }
+
+        .card h4 {
+            margin-bottom: 0.75rem;
+            margin-top: 0px;
+        }
+
+        .card form,
+        .card a,
+        .card button {
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card form select {
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
     </style>
 
     <div class="top-bar">
@@ -103,7 +150,10 @@
         </div>
 
         <div class="dropdown">
-            <button class="dropdown-toggle" onclick="toggleDropdown()">👤 {{ Auth::user()->name }}</button>
+            <button class="dropdown-toggle" onclick="toggleDropdown()">
+                👤 
+                {{ Auth::user()->name }}
+            </button>
             <div class="dropdown-menu" id="dropdown-menu">
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
@@ -126,11 +176,11 @@
         </form>
     </div>
 
-    <div style="max-height: 600px; overflow-y: auto; padding-right: 1px; margin-top: 5px;">
-        @foreach($tasks as $task)
+    <div class="task-list-container">
+        @forelse($tasks as $task)
             <div class="card">
                 <h4 class="{{ $task->is_completed ? 'done' : '' }}">{{ $task->task }}</h4>
-    
+
                 <form action="{{ route('tasks.update', $task) }}" method="POST">
                     @csrf
                     @method('PUT')
@@ -139,17 +189,21 @@
                         <option value="1" {{ $task->is_completed ? 'selected' : '' }}>Done</option>
                     </select>
                 </form>
-    
-                <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm">Detail</a>
-                <a href="{{ route('tasks.edit', $task) }}" class="btn btn-sm btn-warning">Edit</a>
-                <button class="btn btn-sm btn-danger" onclick="confirmDelete('delete-{{ $task->id }}')">Delete</button>
-    
-                <form id="delete-{{ $task->id }}" action="{{ route('tasks.destroy', $task) }}" method="POST" style="display:none;">
+
+                <div class="action-buttons">
+                    <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm">Detail</a>
+                    <a href="{{ route('tasks.edit', $task) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <button class="btn btn-sm btn-danger" onclick="confirmDelete('delete-{{ $task->id }}')">Delete</button>
+                </div>
+
+                <form id="delete-{{ $task->id }}" action="{{ route('tasks.destroy', $task) }}" method="POST" style="display: none;">
                     @csrf
                     @method('DELETE')
                 </form>
             </div>
-        @endforeach
+        @empty
+            <p style="text-align: center; padding: 1rem;">Tidak ada data task.</p>
+        @endforelse
     </div>
 
     <script>
